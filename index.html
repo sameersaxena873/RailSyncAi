@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RailSync AI — Block Planning Demo</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Arial;background:#f4f7fb;color:#172033}
+header{background:#10233f;color:#fff;padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-size:22px;font-weight:800}.brand span{color:#54c2ff}
+.badge{background:#1e8b57;padding:7px 12px;border-radius:20px;font-size:12px}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 65px)}
+aside{background:#fff;border-right:1px solid #e5e9f0;padding:20px}
+nav button{display:block;width:100%;border:0;background:transparent;text-align:left;padding:12px;border-radius:9px;margin:5px 0;font-size:14px;cursor:pointer;color:#334}
+nav button.active,nav button:hover{background:#e9f5ff;color:#0868a7;font-weight:700}
+main{padding:24px;max-width:1500px;width:100%}
+h1{margin:0 0 5px;font-size:28px}.sub{color:#68758a;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:18px;box-shadow:0 2px 8px #10233f08}
+.metric{font-size:28px;font-weight:800;margin-top:7px}.label{font-size:12px;color:#718096}.good{color:#16834c}.warn{color:#c47700}
+.section{margin-top:18px}.section h2{font-size:18px;margin:0 0 12px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+select,input{padding:10px;border:1px solid #d8dee8;border-radius:8px;background:#fff}
+button.primary{background:#0868a7;color:white;border:0;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+button.secondary{background:#fff;border:1px solid #ccd5e1;padding:10px 16px;border-radius:8px;cursor:pointer}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}
+th,td{padding:12px;border-bottom:1px solid #edf0f5;text-align:left;font-size:13px}th{background:#f7f9fc;color:#5b6677}
+.tag{padding:4px 8px;border-radius:12px;font-size:11px;font-weight:700}.eng{background:#fff0df;color:#a55b00}.trd{background:#e9f1ff;color:#1859a9}.st{background:#eeeaff;color:#5c43a5}
+.status{background:#e9f8ef;color:#147642}.pending{background:#fff5df;color:#a56600}
+.timeline{background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:18px;overflow:auto}
+.track{min-width:850px}.axis{display:grid;grid-template-columns:120px repeat(8,1fr);font-size:11px;color:#758195;margin-bottom:7px}
+.row{display:grid;grid-template-columns:120px 1fr;min-height:50px;border-top:1px solid #edf0f5}
+.jobs{position:relative;height:49px;background:repeating-linear-gradient(90deg,#fff 0,#fff calc(12.5% - 1px),#edf0f5 calc(12.5% - 1px),#edf0f5 12.5%)}
+.job{position:absolute;top:8px;height:32px;border-radius:7px;padding:7px 9px;color:white;font-size:11px;font-weight:700;overflow:hidden;white-space:nowrap}
+.engb{background:#e88b24}.trdb{background:#2878d0}.stb{background:#7557c7}.combo{background:#138a61}
+.notice{padding:12px;background:#eef8ff;border-left:4px solid #1586c7;border-radius:8px;font-size:13px}
+.log{font-family:ui-monospace,monospace;background:#111827;color:#d6e1ee;border-radius:10px;padding:14px;line-height:1.7;font-size:12px}
+.hidden{display:none}.approval{display:flex;gap:8px;align-items:center}
+@media(max-width:900px){.layout{grid-template-columns:1fr}aside{display:none}.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="brand">Rail<span>Sync</span> AI</div><div class="badge">● DEMO / Human-in-the-loop</div></header>
+<div class="layout">
+<aside>
+<div style="font-size:12px;color:#8994a5;margin-bottom:10px">CONTROL OFFICE</div>
+<nav>
+<button class="active" onclick="show('dashboard',this)">Dashboard</button>
+<button onclick="show('requests',this)">Block Requests</button>
+<button onclick="show('plan',this)">AI Block Plan</button>
+<button onclick="show('impact',this)">Delay Impact</button>
+<button onclick="show('audit',this)">Audit / Feedback</button>
+</nav>
+</aside>
+<main>
+<section id="dashboard">
+<h1>Divisional Block Planning</h1><div class="sub">Unified Engineering + TRD + S&T maintenance coordination</div>
+<div class="grid">
+<div class="card"><div class="label">Requests Today</div><div class="metric" id="reqCount">12</div></div>
+<div class="card"><div class="label">Conflicts Detected</div><div class="metric warn" id="conflicts">4</div></div>
+<div class="card"><div class="label">Line-block Hours Saved</div><div class="metric good" id="saved">7.5 h</div></div>
+<div class="card"><div class="label">Predicted Delay Reduction</div><div class="metric good" id="delay">31%</div></div>
+</div>
+<div class="section"><h2>AI recommendation</h2><div class="notice">RailSync AI found compatible jobs in the same section and merged them into fewer possession windows. The recommendation must be reviewed and approved by the control office.</div></div>
+<div class="section"><h2>Today’s combined plan</h2>
+<div class="timeline"><div class="track">
+<div class="axis"><div>Section</div><div>06:00</div><div>08:00</div><div>10:00</div><div>12:00</div><div>14:00</div><div>16:00</div><div>18:00</div><div>20:00</div></div>
+<div class="row"><b>KM 118–122</b><div class="jobs"><div class="job combo" style="left:25%;width:25%">ENG + S&T • 10:00–13:00</div></div></div>
+<div class="row"><b>KM 130–134</b><div class="jobs"><div class="job trdb" style="left:50%;width:18.75%">TRD • 14:00–15:30</div></div></div>
+<div class="row"><b>KM 141–146</b><div class="jobs"><div class="job engb" style="left:12.5%;width:18.75%">ENG • 08:00–09:30</div><div class="job stb" style="left:62.5%;width:12.5%">S&T • 16:00–17:00</div></div></div>
+</div></div>
+</div>
+</section>
+
+<section id="requests" class="hidden">
+<h1>Maintenance Block Requests</h1><div class="sub">Mock TMS / SMMS / TDMS feed for the prototype</div>
+<div class="toolbar"><select id="dept"><option>All Departments</option><option>Engineering</option><option>TRD</option><option>S&T</option></select><button class="primary" onclick="optimize()">Run AI Optimizer</button></div>
+<table><thead><tr><th>ID</th><th>Department</th><th>Section</th><th>Work</th><th>Duration</th><th>Priority</th><th>Predicted Risk</th></tr></thead>
+<tbody id="reqTable"></tbody></table>
+</section>
+
+<section id="plan" class="hidden">
+<h1>AI Generated Block Plan</h1><div class="sub">Constraint-based recommendation — demo simulation of OR-Tools CP-SAT</div>
+<div class="grid">
+<div class="card"><div class="label">Original windows</div><div class="metric">9</div></div>
+<div class="card"><div class="label">Combined windows</div><div class="metric good">5</div></div>
+<div class="card"><div class="label">Overlap removed</div><div class="metric good">4</div></div>
+<div class="card"><div class="label">Plan score</div><div class="metric">94/100</div></div>
+</div>
+<div class="section"><div class="notice">Constraints checked: safety buffer, section possession, job duration, department compatibility, and timetable conflict risk.</div></div>
+<div class="section"><h2>Approval</h2><div class="card approval"><span id="approvalText">● Pending control-office approval</span><button class="primary" onclick="approve()">Approve Plan</button><button class="secondary" onclick="adjust()">Request Adjustment</button></div></div>
+</section>
+
+<section id="impact" class="hidden">
+<h1>Delay Impact Prediction</h1><div class="sub">Prototype view of XGBoost + SHAP + GNN outputs</div>
+<table><thead><tr><th>Block</th><th>Predicted delay</th><th>Risk</th><th>Main factors</th><th>Recommendation</th></tr></thead>
+<tbody>
+<tr><td>KM 118–122 • ENG + S&T</td><td>4.2 min</td><td><span class="tag pending">Medium</span></td><td>Peak traffic, 3 trains</td><td>Keep 10:00–13:00</td></tr>
+<tr><td>KM 130–134 • TRD</td><td>1.1 min</td><td><span class="tag status">Low</span></td><td>Low traffic</td><td>Proceed 14:00–15:30</td></tr>
+<tr><td>KM 141–146 • ENG</td><td>6.8 min</td><td><span class="tag pending">Medium</span></td><td>Junction proximity</td><td>Shift after 08:00</td></tr>
+</tbody></table>
+</section>
+
+<section id="audit" class="hidden">
+<h1>Execution Feedback & Audit</h1><div class="sub">Actual vs planned outcomes are captured for continuous model improvement.</div>
+<div class="log" id="log">[09:15] TMS sync successful — 12 requests loaded<br>[09:17] Timetable COA snapshot loaded — 184 train movements<br>[09:18] Conflict scan — 4 overlapping requests found<br>[09:19] Optimizer — 9 windows → 5 combined windows<br>[09:20] Delay model — estimated disruption reduced by 31%<br>[09:21] Awaiting human approval...</div>
+<div class="section"><button class="primary" onclick="feedback()">Record Executed Block</button></div>
+</section>
+</main></div>
+<script>
+const data=[
+['BR-101','Engineering','KM 118–122','Track tamping','2 h','High','Medium'],
+['BR-102','S&T','KM 118–122','Signal cable inspection','1 h','Medium','Medium'],
+['BR-103','TRD','KM 130–134','OHE maintenance','1.5 h','High','Low'],
+['BR-104','Engineering','KM 141–146','Rail grinding','1.5 h','Medium','Medium'],
+['BR-105','S&T','KM 141–146','Point machine test','1 h','Low','Low'],
+['BR-106','Engineering','KM 118–122','Drain cleaning','1 h','Medium','Medium'],
+['BR-107','TRD','KM 150–153','Isolator inspection','1 h','Low','Low'],
+['BR-108','Engineering','KM 130–134','Sleeper replacement','2 h','High','Medium']
+];
+function render(){
+ let f=document.getElementById('dept').value;
+ document.getElementById('reqTable').innerHTML=data.filter(r=>f==='All Departments'||r[1]===f).map(r=>`<tr><td>${r[0]}</td><td><span class="tag ${r[1]==='Engineering'?'eng':r[1]==='TRD'?'trd':'st'}">${r[1]}</span></td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td></tr>`).join('');
+}
+function show(id,btn){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='requests')render();}
+function optimize(){document.getElementById('conflicts').textContent='0';document.getElementById('saved').textContent='8.5 h';document.getElementById('delay').textContent='36%';alert('AI optimizer completed: 8 requests analyzed → 5 compatible block windows recommended.');}
+function approve(){document.getElementById('approvalText').innerHTML='<span class="tag status">✓ APPROVED</span> Plan approved for execution';}
+function adjust(){document.getElementById('approvalText').textContent='⚠ Adjustment requested — planner can revise the window';}
+function feedback(){document.getElementById('log').innerHTML += '<br>[09:35] Execution feedback recorded — actual delay 2.1 min; model learning queue updated';}
+document.getElementById('dept').addEventListener('change',render);render();
+</script>
+</body></html>
